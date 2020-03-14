@@ -2,7 +2,7 @@ import express from 'express'
 import path from 'path'
 
 const app = express(),
-      DIST_DIR = __dirname + '/dist',
+      DIST_DIR = __dirname,
       HTML = DIST_DIR + '/index.html'
 const PORT = process.env.PORT || 5000;
 

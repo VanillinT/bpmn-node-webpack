@@ -4,21 +4,48 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <base href="/">
 </head>
 <body>
     <div id="app">
-        <div id="error-placeholder">
-            <pre></pre>
+        <div id="notification-container" class="hidden">
+            <pre>No diagrams currently selected</pre>
+        </div>
+        <div id="canvas">
+        </div>
+        <div id="custom-diagram-list-ovelray" class="hidden overlay">
+            <div id="custom-diagram-list-container">
+                <button id="diagram-list-button-close">✕</button>
+                <div id="custom-diagram-list">
+                    <table>
+                        <tr>
+                            <th>name</th>
+                            <th>date</th>
+                        </tr>
+                        <tr>
+                            <td>samlpe name</td>
+                            <td>sample date</td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="custom-properties-container">
+
+                </div>
+                <div id="custom-diagram-list-controls">
+                    <button id="diagram-list-button-select">Select</button>
+                </div>
+            </div>
         </div>
         <div id="custom-control-group">
+            <button id="new-diagram-button">
+                New Diagram
+            </button>
             <button id="import-button">
-                Import
+                Import Diagram
             </button>
             <button id="save-button">
                 Save
             </button>
-        </div>
-        <div id="canvas">
         </div>
     </div>
 </body>

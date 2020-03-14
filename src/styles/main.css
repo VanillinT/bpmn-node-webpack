@@ -1,0 +1,62 @@
+@import "~bpmn-js/dist/assets/diagram-js.css";
+@import "~bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
+@import "diagram-list.css";
+@import "notification.css";
+@import "properties.css";
+@import "control-group.css";
+
+:root {
+    --font-color: #FF8888;
+    --font-size: 1.2em;
+    --element-color: #FAFAFA;
+    --element-border: solid 1px #ccc;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: gainsboro;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+pre {
+    margin: 0
+}
+
+#app {
+    position: relative;
+}
+
+#app, #canvas {
+    height: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+
+.overlay {
+    position: absolute;
+    top:0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0, .4);
+    z-index: 1;
+}
+
+button {
+    background-color: var(--element-color);;
+    outline: none;
+    border: var(--element-border);
+    border-radius: 2px;
+    font-size: var(--font-size);
+}
+
+button:hover {
+    color: #FF8888;
+}

@@ -2,6 +2,7 @@ const path = require("path")
 const common = require("./webpack.common")
 const merge = require("webpack-merge")
 const webpack = require("webpack")
+
 module.exports = merge(common, {
     mode: "development",
     entry: {
@@ -22,10 +23,6 @@ module.exports = merge(common, {
                     "style-loader",
                     "css-loader"
                 ]
-            },
-            {
-                test: /\.bpmn$/,
-                use: 'raw-loader'
             }
         ]
     },

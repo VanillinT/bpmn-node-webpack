@@ -1,0 +1,18 @@
+#custom-control-group button {
+    padding: 5px 10px;
+    width: 100%;
+}
+
+#custom-control-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+#custom-control-group button:active {
+    transform: translateY(0.5px)
+}

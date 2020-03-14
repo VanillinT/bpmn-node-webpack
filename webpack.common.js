@@ -1,11 +1,7 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin")
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
 module.exports = {
-    plugins: [
-        new HtmlWebPackPlugin({
-            template: "./src/template.html",
-            excludeChunks: ['server']
-        })
-    ],
     module: {
         rules: [
             {
@@ -13,6 +9,13 @@ module.exports = {
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader"
+                }
+            },
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "ts-loader"
                 }
             },
             {
@@ -30,7 +33,18 @@ module.exports = {
                         }
                     }
                 ]
+            },
+            {
+                test: /\.bpmn$/,
+                use: 'raw-loader'
             }
         ]
-    }
+    },
+    plugins: [
+        new HtmlWebPackPlugin({
+            template: "./src/template.html",
+            excludeChunks: ['server']
+        }),
+        new CleanWebpackPlugin({cleanOnceBeforeBuildPatterns: ['**/*', '!server*'],})
+    ],
 }

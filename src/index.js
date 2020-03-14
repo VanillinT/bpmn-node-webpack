@@ -1,4 +1,4 @@
-import "./main.css"
+import "./styles/main.css"
 import App from './app'
 
 
@@ -7,4 +7,4 @@ if(module.hot) {
     module.hot.accept()
 }
 
-App()
+new App()
