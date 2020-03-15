@@ -35,6 +35,19 @@ module.exports = {
                 ]
             },
             {
+                test: /\.gif$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'assets/',
+                            esModule: false
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.bpmn$/,
                 use: 'raw-loader'
             }

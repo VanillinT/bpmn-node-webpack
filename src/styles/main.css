@@ -35,10 +35,16 @@ pre {
     height: 100%;
 }
 
-.hidden {
-    display: none;
+#spinner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    margin: auto;
+    z-index: 1;
 }
-
 
 .overlay {
     position: absolute;
@@ -49,14 +55,20 @@ pre {
     z-index: 1;
 }
 
-button {
+button, input[type="text"] {
     background-color: var(--element-color);;
     outline: none;
     border: var(--element-border);
     border-radius: 2px;
     font-size: var(--font-size);
+    text-align: center;
 }
 
 button:hover {
-    color: #FF8888;
+    color: var(--font-color);
+}
+
+#diagram-name-input[disabled="false"]:hover {
+    border-color: var(--font-color)
+    
 }

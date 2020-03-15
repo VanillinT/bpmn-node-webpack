@@ -5,49 +5,53 @@ const connectionString = 'mongodb+srv://bpmn-app:ZndD5MQFEuNgSBoe@cluster0-cj5xv
 const bpmnDoc = mongoose.model('bpmnDocument', schemas.bpmnDocSchema)
 const options = { useNewUrlParser: true, useUnifiedTopology: true }
 
-execute = async (query) => {
-  await mongoose.connect(connectionString, options).then(async res => {
-    await query()
-  })
-  mongoose.connection.close()
-}
+mongoose.connect(connectionString, options).then(res => {
+  console.log('connected')
+})
 
-saveDocument = async ({ name, xml }) => {
-  const result = {message: '', isError: false}
-  await execute(async () => {
-    const newDoc = new bpmnDoc({name, xml})
-    console.log(newDoc)
-    await newDoc.save({ name, xml }).then(res => {
-      console.log(result.message = `"${name}" saved successfuly`)
-    }).catch(reason => {console.error(result.message = reason); result.isError = true})
-  })
+//accepts {name, xml}
+saveDocument = async (props) => {
+  let result = {}
+    const newDoc = new bpmnDoc(props)
+    await newDoc.save(props).then(({_id, name, date, xml}) => {
+      result = {id: _id, name, date, xml}
+      console.log('Saved', result)
+    }).catch(reason => {console.error(reason)})
   return result
 }
 
 updateDocument = async ({ id, name, xml }) => {
-  const result = {message: '', isError: false}
-  await execute(async ()=> {
-    await bpmnDoc.updateOne({id}, { name, xml }).then(res => {
-      console.log(result.message = `"${name}" updated successfuly`)
-    }).catch(reason => {console.error(result.message = reason); result.isError = true})
-  })
+  let result = {}
+    await bpmnDoc.updateOne({_id: id}, { $set: (xml ? {name, xml} : {name}) }).then(doc => {
+      result = doc
+      console.log(`"${name}" updated`)
+    }).catch(reason => {console.error(reason)})
   return result
 }
 
 getDocumentsList = async () => {
   let result = {};
-  await execute(async () => {
-    await bpmnDoc.find({}, (err, docs) => {
-      result = docs.map(doc => {
-        return {id: doc.id, name: doc.name, date: doc.date}
+    await bpmnDoc.find({}, async (err, docs) => {
+      if(err) return console.error(err)
+      result = docs.map(({_id, name, date}) => {
+        return {id: _id, name, date}
       })
-    }).catch(reason => {console.error(result.message = reason); result.isError = true})
-  })
+    }).catch(reason => {console.error(reason);})
+  return result
+}
+
+getDocument = async (id) => {
+  let result = {};
+  await bpmnDoc.findById(id, async (err, {_id, name, date, xml}) => {
+    if(err) return console.error(err)
+    result = {id: _id, name, date, xml}
+  }).catch(reason => {console.error(reason)})
   return result
 }
 
 module.exports = {
   saveDocument,
-  updateDocument,
-  getDocumentsList
+  getDocumentsList,
+  getDocument,
+  updateDocument
 }

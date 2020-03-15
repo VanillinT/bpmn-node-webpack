@@ -1,16 +1,20 @@
-#custom-control-group button {
-    padding: 5px 10px;
-    width: 100%;
+#custom-control-group {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
 }
 
-#custom-control-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
+#custom-control-group button {
+    position: relative;
+    padding: 5px 10px;
+}
+
+#custom-control-group input[type="text"] {
+    display: block;
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+    padding: 5px 10px;
 }
 
 #custom-control-group button:active {

@@ -8,40 +8,33 @@
 </head>
 <body>
     <div id="app">
+        <img id="spinner" src="./assets/spinner-main.gif" alt="spinner">
         <div id="notification-container" class="hidden">
-            <pre>No diagrams currently selected</pre>
+            <pre></pre>
         </div>
         <div id="canvas">
         </div>
-        <div id="custom-diagram-list-ovelray" class="hidden overlay">
+        <div id="custom-diagram-list-ovelray" class="overlay">
             <div id="custom-diagram-list-container">
                 <button id="diagram-list-button-close">✕</button>
                 <div id="custom-diagram-list">
-                    <table>
-                        <tr>
-                            <th>name</th>
-                            <th>date</th>
-                        </tr>
-                        <tr>
-                            <td>samlpe name</td>
-                            <td>sample date</td>
-                        </tr>
-                    </table>
+                    <div>
+                        <b>Name</b>
+                        <b>Date</b>
+                    </div>
                 </div>
                 <div id="custom-properties-container">
 
                 </div>
-                <div id="custom-diagram-list-controls">
-                    <button id="diagram-list-button-select">Select</button>
-                </div>
             </div>
         </div>
         <div id="custom-control-group">
+            <input type="text" id="diagram-name-input" value="No diagram is selected" disabled="true">
             <button id="new-diagram-button">
                 New Diagram
             </button>
             <button id="import-button">
-                Import Diagram
+                Show Diagram List
             </button>
             <button id="save-button">
                 Save

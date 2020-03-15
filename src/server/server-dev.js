@@ -2,7 +2,6 @@ import webpack from 'webpack'
 import devMiddleware from 'webpack-dev-middleware'
 import hotMiddleware from 'webpack-hot-middleware'
 import express from 'express'
-import path from 'path'
 import config from '../../webpack.dev'
 import connectApi from './api'
 
@@ -11,7 +10,6 @@ const app = express(),
       HTML = DIST_DIR + '/index.html',
       compiler = webpack(config)
 
-connectApi(app)
 
 const PORT = process.env.PORT || 5000;
 
@@ -31,6 +29,8 @@ app.get('/', (req, res, next) => {
   res.send(result)
   res.end()
 })
+
+connectApi(app)
 
 app.listen(PORT, () => {
   console.log(`app listening on port ${PORT}`)

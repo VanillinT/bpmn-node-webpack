@@ -8,8 +8,8 @@ const setHandlers = (app) => {
     const importBtn = container.find('#import-button'),
         saveBtn = container.find('#save-button'),
         newDiagramBtn = container.find('#new-diagram-button'),
-        selectDiagramListBtn = container.find('#diagram-list-button-select'),
-        closeDiagramListBtn = container.find('#diagram-list-button-close')
+        closeDiagramListBtn = container.find('#diagram-list-button-close'),
+        nameInput = app.diagramNameInput
 
     importBtn.click(() => {
         app.showDiagramList()
@@ -23,15 +23,9 @@ const setHandlers = (app) => {
         app.newDiagram()
     })
 
-    selectDiagramListBtn.click(() => {
-        app.hideElement(diagramOverlay)
-    })
-
     closeDiagramListBtn.click(() => {
-        app.hideElement(diagramOverlay)
+        diagramOverlay.hide()
     })
-
-    $('.overlay').click(() => app.hideElement($('.overlay')))
 }
 
 export default setHandlers
