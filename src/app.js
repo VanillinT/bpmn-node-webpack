@@ -94,7 +94,6 @@ class App {
                 if (!res.id) return request()
 
                 const props = { ...res, correspondingRowInList }
-                console.log(props)
                 this.initiateModel(props)
             })
         }
@@ -124,7 +123,6 @@ class App {
                     })
                 } else {
                     $request.saveDocument(data, (res) => {
-                        console.log(res)
                         const { id, date } = res
                         this.showMessage(`${this.selectedModel.name} has been saved`)
                         this.selectedModel.setProps(id, date)
@@ -137,6 +135,7 @@ class App {
     }
 
     initiateModel(props) {
+        this.container.find('#canvas').show()
         this.selectedModel = new Model(props)
         this.setCurrentName(this.selectedModel.name)
         if (props.xml)
@@ -154,7 +153,6 @@ class App {
                     <div>${date}</div>
                 </div>`)
             newRow.addClass('custom-diagram-list-row')
-            console.log(this.selectedModel)
             if (this.selectedModel && id === this.selectedModel.id)
                 this.selectedModel.bindListItem(newRow)
             newRow.click(() => {
