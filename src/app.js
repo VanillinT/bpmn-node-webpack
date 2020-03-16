@@ -4,12 +4,12 @@ import setHandlers from './setHandlers.js'
 import $request from './queries'
 
 class Model {
-    constructor({ id, name, xml, date, correspondingRow }) {
+    constructor({ id, name, xml, date, correspondingRowInList }) {
         this.id = id
         this.name = name ? name : 'BPMN Diagram ' + new Date().getTime()
         this.xml = xml
         this.date = date
-        this.correspondingRowInList = correspondingRow
+        this.correspondingRowInList = correspondingRowInList
     }
 
     getProps() {
@@ -23,6 +23,10 @@ class Model {
 
     updateListName() {
         this.correspondingRowInList.find('div:first-child').text(this.name)
+    }
+
+    bindListItem(row) {
+        this.selectedModel.correspondingRowInList = row;
     }
 }
 
@@ -46,7 +50,6 @@ class App {
         }).ajaxStop(() => {
             this.spinner.hide();
         }).ajaxError((evt, xhr, textStatus, errorThrown )=>{
-
             this.spinner.hide()
         })
 
@@ -81,9 +84,8 @@ class App {
     }
 
     getDiagramList() {
-        $request.getDocumentsList((res) => {
+        $request.getDocumentsList(res => {
             if (res != {}) {
-                console.log(res)
                 this.diagramList = res
                 this.appendListItems(res)
             }
@@ -91,12 +93,15 @@ class App {
         })
     }
 
-    importDiagram(id, correspondingRow) {
+    //get item from database and assign a row in the list
+    importDiagram(id, correspondingRowInList) {
+        console.log(id, typeof(id))
         this.diagramListOverlay.hide()
-        $request.getDocument(id, (res) => {
-            console.log(id,res)
+        $request.getDocument(id, res => {
+            console.log('got item', res)
             const props = res
-            props.correspondingRow = correspondingRow
+            props.correspondingRowInList = correspondingRowInList
+            console.log('importing',props)
             if (res === {}) return this.showMessage(`Diagram couldn't be found`, true);
             this.initiateModel(props)
         })
@@ -111,8 +116,10 @@ class App {
 
             const data = this.selectedModel.getProps()
 
+            //diagram has assigned id (is in database)
             if (this.selectedModel.id) {
                 $request.updateDocument(data, (res) => {
+                    console.log('saving', this.selectedModel)
                     this.showMessage(`${this.selectedModel.name} updated successfuly`)
                     this.selectedModel.updateListName()
                 })
@@ -160,7 +167,10 @@ class App {
                     <div>${date}</div>
                 </div>`)
             newRow.addClass('custom-diagram-list-row')
+            if (this.selectedModel && id === this.selectedModel.id)
+                this.selectedModel.bindListItem(newRow)
             newRow.click(() => {
+                console.log(this.selectedModel)
                 if (this.selectedModel && id === this.selectedModel.id)
                     return this.showMessage('This diagram is selected', true)
                 this.importDiagram(id, newRow)

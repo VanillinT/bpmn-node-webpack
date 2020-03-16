@@ -8,8 +8,7 @@ const setHandlers = (app) => {
     const importBtn = container.find('#import-button'),
         saveBtn = container.find('#save-button'),
         newDiagramBtn = container.find('#new-diagram-button'),
-        closeDiagramListBtn = container.find('#diagram-list-button-close'),
-        nameInput = app.diagramNameInput
+        closeDiagramListBtn = container.find('#diagram-list-button-close')
 
     importBtn.click(() => {
         app.showDiagramList()
