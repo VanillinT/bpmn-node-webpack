@@ -1,0 +1,28 @@
+#dialog-container {
+    top: 50px;
+    transform: translateX(-50%);
+    width: 350px;
+    padding:0;
+}
+
+#dialog-head {
+    border-bottom: inherit;
+}
+
+#dialog-head pre {
+    padding: 1em;
+    background-color: gainsboro;
+    font-size: 1.4em;
+    overflow: hidden;
+    white-space: initial;
+}
+
+#dialog-body {
+    display:flex;
+    justify-content: flex-end;
+    padding: 10px
+}
+
+#dialog-body button{
+    margin-right: 10px;
+}

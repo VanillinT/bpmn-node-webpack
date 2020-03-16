@@ -17,11 +17,12 @@ const getDocument = (id, callback) => {
     $.ajax({
         type: "post",
         url: '/get_document',
-        data: JSON.stringify({id}),
+        data: JSON.stringify({ id }),
         contentType: 'application/json',
         processData: false,
         success: (res) => {
-            callback(JSON.parse(res))
+            const doc = JSON.parse(res)
+            callback(doc)
         }
     })
 }
@@ -31,7 +32,8 @@ const getDocumentsList = (callback) => {
         url: '/get_documents_list',
         contentType: 'application/json',
         success: (res) => {
-            callback(JSON.parse(res))
+            const arr = JSON.parse(res)
+            callback(arr)
         }
     })
 }
@@ -49,4 +51,4 @@ const updateDocument = (obj, callback) => {
     })
 }
 
-export default {saveDocument, getDocument, getDocumentsList, updateDocument}
+export default { saveDocument, getDocument, getDocumentsList, updateDocument }

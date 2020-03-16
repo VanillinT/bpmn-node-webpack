@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const schemas = require('./schemas.js')
-const connectionString = 'mongodb://127.0.0.1:27017/bpmn'
-//'mongodb+srv://bpmn-app:ZndD5MQFEuNgSBoe@cluster0-cj5xv.mongodb.net/test?retryWrites=true&w=majority'
+const connectionString = 'mongodb+srv://bpmn-app:ZndD5MQFEuNgSBoe@cluster0-cj5xv.mongodb.net/test?retryWrites=true&w=majority'
+//'mongodb://127.0.0.1:27017/bpmn'
 
 const bpmnDoc = mongoose.model('bpmnDocument', schemas.bpmnDocSchema)
 const options = { useNewUrlParser: true, useUnifiedTopology: true }

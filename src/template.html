@@ -8,23 +8,16 @@
 </head>
 <body>
     <div id="app">
-        <img id="spinner" src="./assets/spinner-main.gif" alt="spinner">
-        <div id="notification-container" class="hidden">
-            <pre></pre>
-        </div>
         <div id="canvas">
         </div>
         <div id="custom-diagram-list-ovelray" class="overlay">
-            <div id="custom-diagram-list-container">
+            <div class="overlay-container">
                 <button id="diagram-list-button-close">✕</button>
                 <div id="custom-diagram-list">
                     <div>
                         <b>Name</b>
                         <b>Date</b>
                     </div>
-                </div>
-                <div id="custom-properties-container">
-
                 </div>
             </div>
         </div>
@@ -36,10 +29,11 @@
             <button id="import-button">
                 Show Diagram List
             </button>
-            <button id="save-button">
+            <button id="save-button" disabled='true'>
                 Save
             </button>
         </div>
+        <img id="spinner" src="./assets/spinner-main.gif" alt="spinner">
     </div>
 </body>
 </html>

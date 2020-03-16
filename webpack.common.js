@@ -58,6 +58,6 @@ module.exports = {
             template: "./src/template.html",
             excludeChunks: ['server']
         }),
-        new CleanWebpackPlugin({cleanOnceBeforeBuildPatterns: ['**/*', '!server*'],})
-    ],
+        new CleanWebpackPlugin({cleanOnceBeforeBuildPatterns: ['**/*', '!server*']})
+    ]
 }
