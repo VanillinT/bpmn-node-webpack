@@ -20,3 +20,7 @@
 #custom-control-group button:active {
     transform: translateY(0.5px)
 }
+
+#save-button {
+    visibility: hidden;
+}

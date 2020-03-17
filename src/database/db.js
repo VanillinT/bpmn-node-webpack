@@ -34,8 +34,8 @@ getDocumentsList = async () => {
   let result = {};
   await bpmnDoc.find({}, async (err, docs) => {
     if (err) return console.error(err)
-    result = docs.map(({ _id, name, date }) => {
-      return { id: _id, name, date }
+    result = docs.map(({ _id, name, date, xml }) => {
+      return { id: _id, name, date, xml }
     })
   }).catch(reason => { console.error(reason); })
   return result

@@ -1,38 +1,54 @@
 #custom-diagram-list-container {
     display:flex;
     flex-direction: column;
-    width: auto;
+    width: 500px;
     max-height: 80%;
     max-width: 50%;
 }
 
 #diagram-list-button-close {
     position: absolute;
-    top: 0;
-    right: 0;
+    right: 1px;
+    top: 1px;
+    width: auto;
     border: none;
 }
 
-#custom-diagram-list{
+#custom-diagram-list {
+    margin-top: calc(var(--font-size) + 1px);
     overflow-y: auto;
 }
 
-#custom-diagram-list div{
+#custom-diagram-list > div:nth-child(even) {
+    background-color: gainsboro
+}
+
+#custom-diagram-list div {
     display: flex;
     justify-content: space-around;
     padding: 5px;
 }
 
+#custom-diagram-list div > .bjs-powered-by {
+    display: none;
+}
+
 
 .custom-diagram-list-row {
     display: flex;
+    flex-direction: column;
     width: 100%;
     cursor: pointer;
 }
+
 .custom-diagram-list-row div{
-    width: 50%;
+    width: 100%;
 }
 
 .custom-diagram-list-row:hover {
     background-color: lightgray;
+}
+
+#custom-diagram-list > div:nth-child(even):hover {
+    background-color: #b9b9b9;
 }

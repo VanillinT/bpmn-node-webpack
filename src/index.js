@@ -7,4 +7,4 @@ if(module.hot) {
     module.hot.accept()
 }
 
-new App()
+const app = new App()

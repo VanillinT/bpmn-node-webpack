@@ -1,14 +1,16 @@
 import Modeler from 'bpmn-js/lib/Modeler'
 import $ from 'jquery'
 import $request from './queries'
+import BpmnViewer from 'bpmn-js/lib/Viewer';
 
 class Model {
-    constructor({ id, name, xml, date, correspondingRowInList }) {
+    constructor({ id, name, xml, date, rowInList, viewer }) {
         this.id = id
         this.name = name ? name : 'BPMN Diagram ' + new Date().getTime()
         this.xml = xml
         this.date = date
-        this.correspondingRowInList = correspondingRowInList
+        this.rowInList = rowInList
+        this.viewerInRow = viewer
     }
 
     getProps() {
@@ -20,9 +22,13 @@ class Model {
         this.date = date
     }
 
-    bindListItem(row) {
-        this.selectedModel.correspondingRowInList = row;
+    updateListRow(id, name, xml) {
+        this.rowInList.find(`#row-name-${id}`).text(name)
+        this.viewerInRow.importXML(xml, err=> {
+            if(err) console.error(err)
+        })
     }
+
 }
 
 class App {
@@ -32,166 +38,202 @@ class App {
             container: '#canvas'
         })
         this.container = $('#app')
-
-        this.diagramList = null
+        this.isSaved = true
+        this.models = []
         this.selectedModel = null
 
-        this.setHandlers()
-        this.getDiagramList()
-
+        this.GetDiagramList()
+        this.SetHandlers()
+        
         $(document).ajaxStart(() => {
-            this.showSpinner()
+            this.ShowSpinner()
         }).ajaxStop(() => {
-            this.hideSpinner()
+            this.HideSpinner()
         }).ajaxError((evt, xhr, textStatus, errorThrown) => {
-            this.hideSpinner()
-            this.showMessage('Unhandled query error :(', true)
+            this.HideSpinner()
+            this.ShowMessage('Unhandled query error :(', true)
+        })
+
+        this.modeler.on('element.changed', e => {
+            this.EnableSave()
+            this.isSaved = false
         })
     }
 
-    openDiagram(xml) {
+    OpenModel(xml) {
         this.modeler.importXML(xml, err => {
             if (err) {
-                this.showMessage(err, true)
+                this.ShowMessage(err, true)
                 console.error(err)
             }
         });
     }
 
-    newDiagram() {
-        const createNew = () => {
+    CreateNewModel() {
+        const create = () => {
             this.modeler.createDiagram(() => {
                 this.modeler.saveXML({ format: true }, (err, xml) => {
-                    this.initiateModel({ xml, id:'new' })
+                    const newModel = new Model({ xml })
+                    this.SaveNewAndSelect(newModel)
                 })
             })
         }
-        if (!this.selectedModel) {
-            createNew()
+        if (!this.selectedModel || this.isSaved) {
+            create()
         }
         else {
-            this.dialog('Create new diagram? \nCurrent one will be saved.', () => {
-                this.saveDiagram()
-                createNew()
+            this.Dialog('Create new diagram? \nCurrent one will not be saved.', () => {
+                create()
             })
         }
     }
 
-    getDiagramList() {
+    GetDiagramList() {
         $request.getDocumentsList(res => {
             // response in empty due to database i/o load, retrying
-            if(!Array.isArray(res)) return this.getDiagramList()
-            this.diagramList = res
-            this.appendListItems(res)
+            if(!Array.isArray(res)) return this.GetDiagramList()
+            this.ProcessListItems(res)
         })
     }
 
     //get item from database and assign a row in the list
-    importDiagram(id, correspondingRowInList) {
-        const request = () => {
-            $request.getDocument(id, res => {
-                // response in empty due to database i/o load, retrying
-                if (!res.id) return request()
-
-                const props = { ...res, correspondingRowInList }
-                this.initiateModel(props)
-            })
-        }
-        if (!this.selectedModel)
-            request()
+    ImportDiagram(id) {
+        if (!this.selectedModel || this.isSaved)
+            this.SelectModel(id)
         else {
-            this.dialog('Import new diagram?\nCurrent one will not be saved', () => {
-                request()
+            this.Dialog('Import new diagram?\nCurrent one will not be saved', () => {
+                this.SelectModel(id)
             })
         }
     }
 
-    saveDiagram() {
-        if (this.selectedModel)
-            this.modeler.saveXML({ format: true }, (err, xml) => {
-                if (err) return this.showMessage(err, true)
-                
-                this.selectedModel.xml = xml
+    SaveCurrentModel() {
+        this.modeler.saveXML({ format: true }, (err, xml) => {
+            if (err) return this.ShowMessage(err, true)
+            this.DisableSave()
+            this.selectedModel.xml = xml
+            
+            const data = this.selectedModel.getProps()
+            
+                $request.updateDocument(data, (res) => {
+                    this.ShowMessage(`${this.selectedModel.name} updated successfuly`)
+                    this.GetModel(data.id).updateListRow(data.id, data.name, data.xml)
+                })
 
-                const data = this.selectedModel.getProps()
-
-                //diagram has assigned id (is in database)
-                if (this.selectedModel.id) {
-                    $request.updateDocument(data, (res) => {
-                        this.showMessage(`${this.selectedModel.name} updated successfuly`)
-                        this.updateListName(data.id, data.name)
-                    })
-                } else {
-                    $request.saveDocument(data, (res) => {
-                        const { id, date } = res
-                        this.showMessage(`${this.selectedModel.name} has been saved`)
-                        this.selectedModel.setProps(id, date)
-                        this.appendListItems([this.selectedModel.getProps()])
-                    })
-                }
-            });
-        else
-            this.showMessage('Nothing to save')
+            this.isSaved = true
+        })
     }
 
-    initiateModel(props) {
+    SaveNewAndSelect(model) {
+        this.DisableSave()
+        
+        const data = model.getProps()
+
+        $request.saveDocument(data, (res) => {
+            this.ShowMessage(`${data.name} has been created`)
+
+            const { id, date } = res
+            model.setProps(id, date)
+            
+            this.ProcessListItem(model)
+            this.SelectModel(model.id)
+        })
+
+        this.isSaved = true
+    }
+
+    SelectModel(id) {
+        if(!this.GetModel(id)) return this.ShowMessage('Weird, this item could not be retrieved. Try reloading')
         this.container.find('#canvas').show()
-        this.selectedModel = new Model(props)
-        this.setCurrentName(this.selectedModel.name)
-        if (props.xml)
-            this.openDiagram(props.xml)
-        this.enableSave()
+        this.selectedModel = this.GetModel(id)
+        this.SetCurrentName(this.selectedModel.name)
+        this.OpenModel(this.selectedModel.xml)
+        this.DisableSave()
     }
 
-    appendListItems(arr) {
+    ProcessListItem(m) {
         const target = this.container.find('#custom-diagram-list')
+        const model = new Model({...m})
 
-        for (let { id, name, date } of arr) {
-            const newRow = $(
-                `<div title="Import diagram">
-                    <div id="row-name-${(id ? id: 'new')}">${name}</div>
-                    <div>${date}</div>
-                </div>`)
-            newRow.addClass('custom-diagram-list-row')
-            if (this.selectedModel && id === this.selectedModel.id)
-                this.selectedModel.bindListItem(newRow)
-            newRow.click(() => {
-                if (this.selectedModel && id === this.selectedModel.id)
-                    return this.showMessage('This diagram is selected', true)
-                this.importDiagram(id, newRow)
-                this.hideDiagramList()
+        const rowId = `row-name-${(m.id ? m.id: 'new')}`,
+            viewerId =  `row-viewer-${(m.id ? m.id: 'new')}`
+
+        const newRow = $(
+            `<div title="Import diagram">
+                <div id="${rowId}">${m.name}</div>
+                <div><small>${m.date}</small></div>
+                <div id="${viewerId}"></div>
+            </div>`)
+            .addClass('custom-diagram-list-row')
+            .click(() => {
+                if (this.selectedModel && this.selectedModel.id === m.id)
+                    return this.ShowMessage('This diagram is selected', true)
+                this.ImportDiagram(m.id)
+                this.HideDiagramList()
             })
-            target.append(newRow)
+
+        target.append(newRow)
+        model.rowInList = newRow
+
+        const selector = `#custom-diagram-list > div.custom-diagram-list-row > #${viewerId}`
+        const viewer = new BpmnViewer({container: selector, width: '100%', height: '100%'})
+        viewer.importXML(m.xml, err => {
+            if(err) console.error(err)
+        })
+        viewer.get('canvas').zoom(.25, 'auto')
+        model.viewerInRow = viewer
+        this.models.push(model)
+    }
+    ProcessListItems(models) {
+        this.ShowSpinner()
+        for (let m of models) {
+            this.ProcessListItem(m)
         }
+        this.HideSpinner()
     }
 
-    showDiagramList() {
-        if(this.diagramList.length > 0)
+    GetModel(id){
+        let res = {}
+        for(let m of this.models){
+            if(m.id === id){
+                res = m
+                break
+            }
+        }
+        return res
+    }
+
+    ShowDiagramList() {
+        if(this.models.length > 0)
             this.container.find('#custom-diagram-list-ovelray').fadeIn(300)
         else
-            this.showMessage('There are currently no diagrams saved')
+            this.ShowMessage('There are currently no diagrams saved')
     }
 
-    hideDiagramList() {
+    HideDiagramList() {
         this.container.find('#custom-diagram-list-ovelray').fadeOut(100)
     }
 
-    setCurrentName(name) {
+    SetCurrentName(name) {
         return this.container.find('#diagram-name-input')
             .prop('disabled', false)
             .val(name)
-            .change((evt) => { this.selectedModel.name = evt.target.value })
+            .change((evt) => { 
+                evt.target.value = evt.target.value.trim()
+                this.selectedModel.name = evt.target.value
+                this.EnableSave()
+            })
     }
 
-    enableSave() {
-        this.container.find('#save-button').prop('disabled', false)
+    EnableSave() {
+        this.container.find('#save-button').css('visibility', 'visible')
     }
 
-    updateListName(id, name) {
-        this.container.find(`#row-name-${id}`).text(name)
+    DisableSave() {
+        this.container.find('#save-button').css('visibility', 'hidden')
     }
 
-    dialog(message, acceptCallback, declineCallback) {
+    Dialog(message, acceptCallback, declineCallback) {
         let dialogEl = $(`
         <div id="dialog-overlay" class="overlay">
             <div id="dialog-container" class="overlay-container">
@@ -216,15 +258,15 @@ class App {
         })
     }
 
-    showSpinner() {
+    ShowSpinner() {
         this.container.find('#spinner').show()
     }
 
-    hideSpinner() {
+    HideSpinner() {
         this.container.find('#spinner').fadeOut(50)
     }
 
-    showMessage(message, isError) {
+    ShowMessage(message, isError) {
         const messageEl = $(`<div id="notification-container">
                                 <pre>${message}</pre>
                             </div>`).appendTo(this.container)
@@ -238,28 +280,28 @@ class App {
         }, 2000)
     }
 
-    setHandlers() {
+    SetHandlers() {
         const c = this.container
 
         const importBtn = c.find('#import-button'),
             saveBtn = c.find('#save-button'),
-            newDiagramBtn = c.find('#new-diagram-button'),
+            createNewModelBtn = c.find('#new-diagram-button'),
             closeDiagramListBtn = c.find('#diagram-list-button-close')
 
         importBtn.click(() => {
-            this.showDiagramList()
+            this.ShowDiagramList()
         })
 
         saveBtn.click(() => {
-            this.saveDiagram()
+            this.SaveCurrentModel()
         })
 
-        newDiagramBtn.click(() => {
-            this.newDiagram()
+        createNewModelBtn.click(() => {
+            this.CreateNewModel()
         })
 
         closeDiagramListBtn.click(() => {
-            this.hideDiagramList()
+            this.HideDiagramList()
         })
     }
 }
