@@ -9,12 +9,6 @@ module.exports = (app) => {
         res.send(JSON.stringify(result))
     })
 
-    app.post('/get_document', async (req, res) => {
-        const id = req.body.id
-        const result = await db.getDocument(id)
-        res.send(JSON.stringify(result))
-    })
-
     app.post('/save_document', async (req, res) => {
         const name = req.body.name,
             xml = req.body.xml

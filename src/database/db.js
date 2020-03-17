@@ -41,18 +41,8 @@ getDocumentsList = async () => {
   return result
 }
 
-getDocument = async (id) => {
-  let result = {};
-  await bpmnDoc.findOne({_id: id}, async (err, { _id, name, date, xml }) => {
-    if (err) return console.error(err)
-    result = { id: _id, name, date, xml }
-  }).catch(reason => { console.error(reason) })
-  return result
-}
-
 module.exports = {
   saveDocument,
   getDocumentsList,
-  getDocument,
   updateDocument
 }

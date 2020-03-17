@@ -6,15 +6,19 @@ import BpmnViewer from 'bpmn-js/lib/Viewer';
 class Model {
     constructor({ id, name, xml, date, rowInList, viewer }) {
         this.id = id
-        this.name = name ? name : 'BPMN Diagram ' + new Date().getTime()
+        this.name = name ? name : this.generateName()
         this.xml = xml
         this.date = date
         this.rowInList = rowInList
         this.viewerInRow = viewer
     }
 
+    generateName() {
+        return 'BPMN Diagram ' + new Date().getTime();
+    }
+
     getProps() {
-        return { id: this.id, name: this.name, xml: this.xml, date: this.date }
+        return { id: this.id, name: (this.name = this.name ? this.name : this.generateName()), xml: this.xml, date: this.date }
     }
 
     setProps(id, date) {
@@ -22,11 +26,13 @@ class Model {
         this.date = date
     }
 
-    updateListRow(id, name, xml) {
-        this.rowInList.find(`#row-name-${id}`).text(name)
-        this.viewerInRow.importXML(xml, err=> {
-            if(err) console.error(err)
-        })
+    updateListRow(name, xml) {
+        if(name)
+            this.rowInList.find(`#row-name-${this.id}`).text(name)
+        if(xml )
+            this.viewerInRow.importXML(xml, err=> {
+                if(err) console.error(err)
+            })
     }
 
 }
@@ -116,8 +122,10 @@ class App {
             const data = this.selectedModel.getProps()
             
                 $request.updateDocument(data, (res) => {
+                    const model = this.GetModel(data.id)
+                    model.updateListRow(data.name, data.xml)
+                    this.SetCurrentName(model.getProps().name)
                     this.ShowMessage(`${this.selectedModel.name} updated successfuly`)
-                    this.GetModel(data.id).updateListRow(data.id, data.name, data.xml)
                 })
 
             this.isSaved = true
@@ -125,21 +133,22 @@ class App {
     }
 
     SaveNewAndSelect(model) {
-        this.DisableSave()
-        
         const data = model.getProps()
 
         $request.saveDocument(data, (res) => {
+            this.DisableSave()
+            
             this.ShowMessage(`${data.name} has been created`)
 
             const { id, date } = res
             model.setProps(id, date)
-            
+
             this.ProcessListItem(model)
             this.SelectModel(model.id)
+
+            this.isSaved = true
         })
 
-        this.isSaved = true
     }
 
     SelectModel(id) {
@@ -184,6 +193,7 @@ class App {
         model.viewerInRow = viewer
         this.models.push(model)
     }
+
     ProcessListItems(models) {
         this.ShowSpinner()
         for (let m of models) {
